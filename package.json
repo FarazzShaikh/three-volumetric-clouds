@@ -16,6 +16,7 @@
     "r3f-perf": "^7.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "simplex-noise": "^4.0.3",
     "three": "^0.167.1",
     "tunnel-rat": "^0.1.2"
   },

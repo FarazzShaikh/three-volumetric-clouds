@@ -22,6 +22,7 @@ export default function App() {
         <PerspectiveCamera position={[-5, 5, 5]} makeDefault />
 
         <axesHelper args={[10]} />
+        <gridHelper />
 
         <Thing />
 

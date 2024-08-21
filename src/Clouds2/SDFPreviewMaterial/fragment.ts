@@ -3,12 +3,21 @@ export default /* glsl */ `
 uniform vec2 uResolution;
 uniform sampler3D uSDFTexture;
 
-void main() {
-  vec2 uv = gl_FragCoord.xy / uResolution;
+varying vec2 vUv;
 
-  vec3 coord = vec3(uv, 0.0);
+float mapLinear(float value, float start1, float end1, float start2, float end2) {
+  return start2 + (end2 - start2) * ((value - start1) / (end1 - start1));
+}
+
+void main() {
+  vec2 uv = vUv;
+  float aspect = uResolution.x / uResolution.y;
+  uv.x *= aspect;
+
+  vec3 coord = vec3(uv, 0.5);
 
   float r = texture(uSDFTexture, coord).r;
+  // r = mapLinear(r, 0.0, 1.0, -1.0, 1.0);
 
   gl_FragColor = vec4(vec3(r), 1.0);
 }

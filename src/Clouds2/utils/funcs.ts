@@ -23,6 +23,7 @@ export function createRenderTarget3D(
   return new THREE.WebGL3DRenderTarget(width, height, depth, {
     depthBuffer: false,
     stencilBuffer: false,
+
     ...opts,
   });
 }

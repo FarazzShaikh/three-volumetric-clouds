@@ -49,21 +49,11 @@ float sdBox(vec3 p, vec3 b) {
 }
 
 float getSceneDist(vec3 p) {
-  vec3 coord = p * 2.0;
+  vec3 coord = p;
 
-  float sphere1 = sdSphere(coord, 0.5);
-  float sphere2 = sdSphere(coord + vec3(0.0, -0.3, 0.0), 0.75);
-  float sphere3 = sdSphere(coord + vec3(0.2, 0.0, 0.0), 1.0);
-  float sphere4 = sdSphere(coord + vec3(0.0, 0.0, 0.4), 0.5);
-
-  float sphere = min(sphere1, sphere2);
-  sphere = min(sphere, sphere3);
-  sphere = min(sphere, sphere4);
-
-  float f = fbm(coord);
-  float s1 = sphere + f;
-
-  return s1;
+  float box = sdBox(coord, vec3(0.5));
+  float sphere = sdSphere(coord, 1.0);
+  return sphere;
 }
 
 float packSignedFloatToFloat(float value) {
@@ -74,7 +64,8 @@ float packSignedFloatToFloat(float value) {
 
 void main() {
   vec3 uv = vec3(gl_FragCoord.xy / uResolution.xy, uResolution.z);
-  uv.xy -= 0.5;
+  // uv.xy -= 0.5;
+  // uv.xy *= 2.0;
 
   float sceneDist = getSceneDist(uv);
   sceneDist = packSignedFloatToFloat(sceneDist);

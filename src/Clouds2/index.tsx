@@ -9,14 +9,12 @@ export function Clouds2() {
   const renderer = useMemo(() => new CloudRenderer(gl), []);
 
   useFrame(() => {
-    // @ts-ignore
-    const parent = meshRef.current.__r3f.parent;
     if (parent) {
-      renderer.update(parent);
+      renderer.update(meshRef.current);
     }
   });
 
-  const geometry = useMemo(() => new THREE.BoxGeometry(5, 5, 5), []);
+  const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
 
   return (
     // <mesh ref={meshRef} material={renderer.material}>
@@ -24,7 +22,7 @@ export function Clouds2() {
     // </mesh>
     <>
       <mesh ref={meshRef} material={renderer.material} geometry={geometry} />
-      <mesh ref={meshRef} geometry={geometry}>
+      <mesh geometry={geometry}>
         <meshBasicMaterial color="red" wireframe />
       </mesh>
     </>
