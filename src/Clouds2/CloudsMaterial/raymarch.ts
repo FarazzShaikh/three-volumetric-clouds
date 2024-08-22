@@ -70,6 +70,9 @@ vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMa
   float depth = 0.0;
   float density = 0.0;
 
+  vec3 lightPos = lightPosition;
+  vec3 lightDirection = -normalize(lightPos - ro);
+
   float cosTheta = dot(rd, lightDirection);
 
   float stepSize = (far - near) / float(MAX_STEPS);
@@ -90,6 +93,11 @@ vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMa
       vec3 luminance = marchDirectionalLight(samplePoint, lightDirection, cosTheta);
       finalColor += lightColor * luminance * density * transmittance;
       transmittance *= beersLaw(density, lightAbsorption);
+
+      // Ambient light
+      vec3 ambientLight = ambientLightColor;
+      finalColor += ambientLight * density * transmittance;
+
     }
 
     depth += stepSize;

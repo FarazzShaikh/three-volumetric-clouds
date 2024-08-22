@@ -20,8 +20,9 @@ const float darknessThreshold = 0.025;
 const float lightAbsorption = 1.0;
 const float anisotropicFactor = 0.4;
 const float phaseMix = 0.4;
-const vec3 lightDirection = vec3(-1.0, 0.0, 0.0);
+const vec3 lightPosition = vec3(-10.0, 10.0, -10.0);
 const vec3 lightColor = vec3(1.0) * 2.0;
+const vec3 ambientLightColor = vec3(1.0) * 0.5;
 
 struct Ray {
   vec3 origin;
@@ -109,7 +110,7 @@ void main() {
 
   vec4 color = rayMarch(ray.origin, ray.dir, near, far, aabbMin, aabbMax);
 
-  gl_FragColor = vec4(color.rgb, 1.0);
+  gl_FragColor = vec4(color.rgb, color.a);
 }
 `;
 

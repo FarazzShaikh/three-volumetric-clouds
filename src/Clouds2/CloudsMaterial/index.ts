@@ -24,6 +24,7 @@ export class CloudsMaterial extends THREE.ShaderMaterial {
       },
       side: THREE.BackSide,
       transparent: true,
+      alphaHash: true,
       // glslVersion: THREE.GLSL3,
     });
   }

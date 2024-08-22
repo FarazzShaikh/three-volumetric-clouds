@@ -16,8 +16,8 @@ void main() {
 
   vec3 coord = vec3(uv, 0.5);
 
-  float r = texture(uSDFTexture, coord).r;
-  // r = mapLinear(r, 0.0, 1.0, -1.0, 1.0);
+  float r = 1.0 - texture(uSDFTexture, coord).r;
+  // r = mapLinear(r, 0.0, 1.0, 1.0, 1.0);
 
   gl_FragColor = vec4(vec3(r), 1.0);
 }

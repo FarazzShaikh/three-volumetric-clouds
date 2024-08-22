@@ -1,4 +1,4 @@
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, Sky } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { PerfHeadless } from "r3f-perf";
 import { Clouds2 } from "./Clouds2";
@@ -22,9 +22,11 @@ export default function App() {
         <PerspectiveCamera position={[-5, 5, 5]} makeDefault />
 
         <axesHelper args={[10]} />
-        <gridHelper />
+        {/* <gridHelper /> */}
 
         <Thing />
+
+        <Sky />
 
         <PerfHeadless />
       </Canvas>
