@@ -20,11 +20,11 @@ export function Clouds2() {
     // <mesh ref={meshRef} material={renderer.material}>
     //   <boxGeometry args={[40, 40, 40]} />
     // </mesh>
-    <>
+    <group>
       <mesh ref={meshRef} material={renderer.material} geometry={geometry} />
       <mesh geometry={geometry}>
         <meshBasicMaterial color="red" wireframe />
       </mesh>
-    </>
+    </group>
   );
 }

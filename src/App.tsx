@@ -1,13 +1,14 @@
-import { OrbitControls, PerspectiveCamera, Sky } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { PerfHeadless } from "r3f-perf";
-import { Clouds2 } from "./Clouds2";
+import { Clouds3 } from "./Clouds3";
 
 function Thing() {
   return (
     <>
       {/* <Clouds /> */}
-      <Clouds2 />
+      {/* <Clouds2 /> */}
+      <Clouds3 />
     </>
   );
 }
@@ -18,15 +19,19 @@ export default function App() {
       <Canvas shadows>
         <fog attach="fog" args={[0xffffff, 10, 90]} />
 
-        <OrbitControls makeDefault enableDamping={false} />
-        <PerspectiveCamera position={[-5, 5, 5]} makeDefault />
+        <OrbitControls
+          makeDefault
+          enableDamping={false}
+          target={[0, 0, 0.00001]}
+        />
+        <PerspectiveCamera position={[2, 2, 2]} makeDefault />
 
         <axesHelper args={[10]} />
-        {/* <gridHelper /> */}
+        <gridHelper />
 
         <Thing />
 
-        <Sky />
+        {/* <Sky /> */}
 
         <PerfHeadless />
       </Canvas>

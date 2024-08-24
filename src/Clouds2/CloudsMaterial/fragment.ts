@@ -108,9 +108,11 @@ void main() {
 
   // vec3 lightDir = vec3(0., -1., 0.);
 
-  vec4 color = rayMarch(ray.origin, ray.dir, near, far, aabbMin, aabbMax);
+  // vec4 color = rayMarch(ray.origin, ray.dir, near, far, aabbMin, aabbMax);
 
-  gl_FragColor = vec4(color.rgb, color.a);
+  ray.origin = ray.origin + far * ray.dir;
+
+  gl_FragColor = vec4(vec3(ray.origin), 1.0);
 }
 `;
 
