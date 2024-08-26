@@ -1,6 +1,6 @@
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { PerfHeadless } from "r3f-perf";
+import { Perf } from "r3f-perf";
 import { Clouds3 } from "./Clouds3";
 
 function Thing() {
@@ -33,7 +33,8 @@ export default function App() {
 
         {/* <Sky /> */}
 
-        <PerfHeadless />
+        {/* <PerfHeadless /> */}
+        <Perf />
       </Canvas>
       {/* <Ui /> */}
     </>

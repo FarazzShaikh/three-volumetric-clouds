@@ -94,10 +94,13 @@ vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMa
       finalColor += lightColor * luminance * density * transmittance;
       transmittance *= beersLaw(density, lightAbsorption);
 
+      // finalColor += vec3(density);
+
       // Ambient light
       vec3 ambientLight = ambientLightColor;
       finalColor += ambientLight * density * transmittance;
 
+      if(density >= 1.0) break;
     }
 
     depth += stepSize;

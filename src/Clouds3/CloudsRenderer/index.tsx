@@ -1,3 +1,4 @@
+import { Size } from "@react-three/fiber";
 import * as THREE from "three";
 import { TextureA3D } from "./fbo/TextureA3D";
 import { TextureA3DMaterial } from "./fbo/TextureA3D/TextureA3DMaterial";
@@ -5,8 +6,10 @@ import { TextureB3D } from "./fbo/TextureB3D";
 import { TextureB3DMaterial } from "./fbo/TextureB3D/TextureB3DMaterial";
 import { TextureC2D } from "./fbo/TextureC3D";
 import { TextureC2DMaterial } from "./fbo/TextureC3D/TextureB3DMaterial";
+import { TextureCloud } from "./fbo/TextureCloud";
 import { TextureScene } from "./fbo/TextureScene";
 import { FullScreenQuad } from "./FullScreenQuad";
+import { CloudMaterial } from "./materials/CloudMaterial";
 import { RenderMaterial } from "./materials/RenderMaterial";
 
 export class CloudsRenderer {
@@ -22,18 +25,29 @@ export class CloudsRenderer {
   textureC2D: TextureC2D;
 
   textureScene: TextureScene;
+  textureCloud: TextureCloud;
 
   renderMaterial: RenderMaterial;
+  cloudMaterial: CloudMaterial;
 
   fsQuad: FullScreenQuad;
 
-  constructor(gl: THREE.WebGLRenderer) {
+  constructor(gl: THREE.WebGLRenderer, size: Size) {
     this._gl = gl;
+
+    const downSampleFactor = 1;
 
     this.textureA3D = new TextureA3D(128, 128, 128);
     this.textureB3D = new TextureB3D(32, 32, 32);
     this.textureC2D = new TextureC2D(128, 128);
-    this.textureScene = new TextureScene(512, 512);
+    this.textureScene = new TextureScene(
+      size.width * downSampleFactor,
+      size.height * downSampleFactor
+    );
+    this.textureCloud = new TextureCloud(
+      size.width * downSampleFactor,
+      size.height * downSampleFactor
+    );
 
     this.fsQuad = new FullScreenQuad();
 
@@ -41,6 +55,7 @@ export class CloudsRenderer {
     this.textureB3DMaterial = new TextureB3DMaterial();
     this.textureC2DMaterial = new TextureC2DMaterial();
     this.renderMaterial = new RenderMaterial(this);
+    this.cloudMaterial = new CloudMaterial(this);
 
     this.generate3DTextures(this.textureA3DMaterial, this.textureA3D);
     this.generate3DTextures(this.textureB3DMaterial, this.textureB3D);
@@ -75,6 +90,10 @@ export class CloudsRenderer {
     this._gl.setRenderTarget(null);
   }
 
+  resize(size: Size) {
+    // this.textureScene.setSize(size.width, size.height);
+  }
+
   render(target: THREE.Mesh, camera: THREE.Camera) {
     this._gl.setRenderTarget(this.textureScene);
     this._gl.render(target, camera);
@@ -86,9 +105,13 @@ export class CloudsRenderer {
     const prevAutoClear = this._gl.autoClear;
     this._gl.autoClear = false;
 
-    this.renderMaterial.update(target, camera);
-    this.fsQuad.material = this.renderMaterial;
+    this.cloudMaterial.update(target, camera);
+    this.fsQuad.material = this.cloudMaterial;
+    this._gl.setRenderTarget(this.textureCloud);
+    this.fsQuad.render(this._gl);
     this._gl.setRenderTarget(null);
+
+    this.fsQuad.material = this.renderMaterial;
     this.fsQuad.render(this._gl);
 
     this._gl.autoClear = prevAutoClear;

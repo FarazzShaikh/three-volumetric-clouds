@@ -20,7 +20,7 @@ export function useTextureViewer(
 
     const root = createRoot(container);
     root.render(
-      <TextureViewerContainer>
+      <TextureViewerContainer style={{ visibility: "hidden" }}>
         {fbos.map((fbo, index) => (
           <Canvas key={index} fbo={fbo} gl={gl} />
         ))}
