@@ -63,6 +63,7 @@ vec3 marchDirectionalLight(vec3 samplePos, vec3 lightDirection, float cosTheta) 
   return vec3(luminance);
 }
 
+
 vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMax) {
   vec3 finalColor = vec3(0.0);
   float transmittance = 1.0;
@@ -84,6 +85,10 @@ vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMa
     if(depth > far) break;
 
     samplePoint += rd * stepSize;
+
+    if(samplePoint.x < 0.0 || samplePoint.x > 1.0 || samplePoint.y < 0.0 || samplePoint.y > 1.0 || samplePoint.z < 0.0 || samplePoint.z > 1.0) {
+      break;
+    }
 
     float signedDistance = getSceneDist(samplePoint);
 

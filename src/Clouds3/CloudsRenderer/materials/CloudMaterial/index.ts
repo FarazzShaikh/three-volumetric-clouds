@@ -13,6 +13,9 @@ export class CloudMaterial extends THREE.ShaderMaterial {
     uCameraPosition: { value: THREE.Vector3 };
     uProjectionInverse: { value: THREE.Matrix4 };
     uCameraMatrixWorld: { value: THREE.Matrix4 };
+
+    uBoxMin: { value: THREE.Vector3 };
+    uBoxMax: { value: THREE.Vector3 };
   };
 
   constructor(renderer: CloudsRenderer) {
@@ -21,7 +24,6 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         varying vec2 vUv;
         varying vec3 vCameraPosition;
 
-        uniform mat4 uMatrixWorldInv;
 
         void main() {
           vUv = uv;
@@ -55,6 +57,8 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         uniform mat4 uProjectionInverse;
         uniform mat4 uCameraMatrixWorld;
 
+        // Box
+        uniform mat4 uMatrixWorldInv;
         uniform vec3 uBoxMin;
         uniform vec3 uBoxMax;
 
@@ -85,8 +89,8 @@ export class CloudMaterial extends THREE.ShaderMaterial {
           ray.dir = normalize(worldSpacePos - uCameraPosition);
 
           // Box
-          vec3 aabbMin = vec3(-0.5);
-          vec3 aabbMax = vec3(0.5);
+          vec3 aabbMin = uBoxMin;
+          vec3 aabbMax = uBoxMax;
           vec2 nearFar = intersectAABB(ray, aabbMin, aabbMax);
 
           // March
@@ -107,11 +111,15 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         uCameraPosition: { value: new THREE.Vector3() },
         uProjectionInverse: { value: new THREE.Matrix4() },
         uCameraMatrixWorld: { value: new THREE.Matrix4() },
+
+        uBoxMin: { value: new THREE.Vector3() },
+        uBoxMax: { value: new THREE.Vector3() },
       },
       transparent: true,
     });
   }
 
+  _box: THREE.Box3 | null = null;
   update(target: THREE.Mesh, camera: THREE.Camera) {
     this.uniforms.uMatrixWorldInv.value.copy(target.matrixWorld).invert();
 
@@ -120,5 +128,12 @@ export class CloudMaterial extends THREE.ShaderMaterial {
     this.uniforms.uCameraPosition.value.copy(c.position);
     this.uniforms.uProjectionInverse.value.copy(c.projectionMatrixInverse);
     this.uniforms.uCameraMatrixWorld.value.copy(c.matrixWorld);
+
+    if (!this._box) {
+      this._box = new THREE.Box3().setFromObject(target);
+    }
+
+    this.uniforms.uBoxMin.value.copy(this._box.min);
+    this.uniforms.uBoxMax.value.copy(this._box.max);
   }
 }

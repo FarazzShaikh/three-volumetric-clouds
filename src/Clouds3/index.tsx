@@ -1,6 +1,6 @@
-import { createPortal, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { BackSide, Mesh, Scene } from "three";
+import { BackSide, Mesh } from "three";
 import { CloudsRenderer } from "./CloudsRenderer";
 import { useTextureViewer } from "./TextureViewer";
 
@@ -9,8 +9,6 @@ export function Clouds3() {
   const gl = useThree((state) => state.gl);
   const size = useThree((state) => state.size);
   const renderer = useMemo(() => new CloudsRenderer(gl, size), []);
-
-  const targetScene = useMemo(() => new Scene(), []);
 
   useTextureViewer(renderer.textures);
 
@@ -26,21 +24,15 @@ export function Clouds3() {
   const boxSize = 1;
 
   return (
-    <>
-      {createPortal(
-        <>
-          <mesh ref={targetRef}>
-            <boxGeometry args={[boxSize, boxSize, boxSize]} />
-            <meshBasicMaterial side={BackSide} />
-          </mesh>
-        </>,
-        targetScene
-      )}
-
+    <group>
+      <mesh ref={targetRef}>
+        <boxGeometry args={[boxSize, boxSize, boxSize]} />
+        <meshBasicMaterial side={BackSide} />
+      </mesh>
       <mesh>
         <boxGeometry args={[boxSize, boxSize, boxSize]} />
         <meshBasicMaterial color="red" wireframe />
       </mesh>
-    </>
+    </group>
   );
 }
