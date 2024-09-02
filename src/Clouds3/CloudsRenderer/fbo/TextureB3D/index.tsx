@@ -13,8 +13,8 @@ export class TextureB3D extends THREE.WebGL3DRenderTarget {
 
     this.texture.type = THREE.UnsignedByteType;
     this.texture.format = THREE.RGBAFormat;
-    this.texture.minFilter = THREE.NearestFilter;
-    this.texture.magFilter = THREE.NearestFilter;
+    this.texture.minFilter = THREE.LinearFilter;
+    this.texture.magFilter = THREE.LinearFilter;
     this.texture.generateMipmaps = false;
   }
 }

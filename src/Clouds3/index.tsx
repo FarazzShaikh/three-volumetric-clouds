@@ -17,8 +17,7 @@ export function Clouds3() {
   }, [size]);
 
   useFrame(({ camera, gl, scene }) => {
-    gl.render(scene, camera);
-    renderer.render(targetRef.current, camera);
+    renderer.render(targetRef.current, camera, scene);
   }, 1);
 
   const boxSize = 1;
@@ -29,10 +28,10 @@ export function Clouds3() {
         <boxGeometry args={[boxSize, boxSize, boxSize]} />
         <meshBasicMaterial side={BackSide} />
       </mesh>
-      <mesh>
+      {/* <mesh>
         <boxGeometry args={[boxSize, boxSize, boxSize]} />
         <meshBasicMaterial color="red" wireframe />
-      </mesh>
+      </mesh> */}
     </group>
   );
 }

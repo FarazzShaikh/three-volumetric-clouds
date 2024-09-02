@@ -50,6 +50,7 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         uniform sampler3D uTextureA;
         uniform sampler3D uTextureB;
         uniform sampler2D uTextureC;
+        uniform sampler2D uTextureEnvelope;
 
         // Camera
         uniform vec2 uCameraNearFar;
@@ -62,11 +63,95 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         uniform vec3 uBoxMin;
         uniform vec3 uBoxMax;
 
-        float getSceneDist(vec3 p) {
-          float distance = texture(uTextureA, p).r;
-          float signedDistance = distance * 2.0 - 1.0;
+        float saturate(float value) {
+          return clamp(value, 0.0, 1.0);
+        }
 
-          return signedDistance;
+        float remap(float inValue, float inOldMin, float inOldMax, float inMin, float inMax) {
+          float old_min_max_range = (inOldMax - inOldMin);
+          float clamped_normalized = saturate((inValue - inOldMin) / old_min_max_range);
+          return inMin + (clamped_normalized*(inMax - inMin));
+        }
+
+        float remap2(float value, float valueMin, float valueMax) {
+          return (value - valueMin) / (valueMax - valueMin);
+        }
+
+        float erode(float lowDetail, float highDetail, float factor) {
+          float f = 1.0 - lowDetail;
+          float h = factor;
+
+          float a = highDetail * (1.0-h) + h;
+          float result = saturate(remap2(a, f, f + h));
+
+          return result;
+        }
+
+
+        float getDimensionalProfile(vec3 p, out float heightBlend) {
+          // vec4 textureB = texture(uTextureB, vec3(p.xz, 0.2));
+          // float lowWorleyFbm2 = textureB.r;
+          // float lowWorleyFbm4 = textureB.g;
+          // float lowWorleyFbm8 = textureB.b;
+
+          vec4 textureEnvelope = texture(uTextureEnvelope, p.xz);
+          float minHeight = textureEnvelope.r;
+          float maxHeight = textureEnvelope.g;
+          float cloudType = textureEnvelope.b;
+          float density = textureEnvelope.a;
+
+          
+          float clampedHeight = p.y * step(minHeight, p.y) * step(p.y, maxHeight);
+          float height = remap(clampedHeight, minHeight, maxHeight, 0.0, 1.0);
+          height = abs(height - 0.5) * 2.0;
+          height = 1.0 - height;
+
+          float edgeGradient = length(p.xz - 0.5) * 2.0;
+          edgeGradient = saturate(edgeGradient);
+          edgeGradient = 1.0 - edgeGradient;
+          edgeGradient = pow(edgeGradient, 1.0);
+
+          float dimensionalProfile = height * edgeGradient;
+        
+          heightBlend = height;
+
+          return dimensionalProfile;
+        }
+        
+        float getDimensionalProfile(vec3 p) {
+          float cloudType;
+          return getDimensionalProfile(p, cloudType);
+        }
+
+        float getCloudDensity(vec3 p) {
+          float scale = 2.0;
+          vec3 coord = p * scale;
+          coord = mod(coord, 1.0);
+
+          vec4 textureA = texture(uTextureA, coord);
+          // vec4 textureC = texture(uTextureC, vUv);
+
+          float perlinWorley = textureA.r;
+          float worleyFbm4 = textureA.g;
+          float worleyFbm8 = textureA.b;
+          float worleyFbm16 = textureA.a;
+
+          // float curlNoise2 = textureC.r;
+          // float curlNoise4 = textureC.g;
+          // float curlNoise8 = textureC.b;
+          
+          float heightBlend = 0.0;
+          float dimensionalProfile = getDimensionalProfile(p, heightBlend);
+
+          float noiseComposite = mix(pow(1.0 - perlinWorley, 1.0), perlinWorley, heightBlend);
+
+          float cloudDensity = saturate(perlinWorley - (1.0 - dimensionalProfile));
+          // cloudDensity = mix(cloudDensity, saturate(worleyFbm16 - (1.0 - dimensionalProfile)), 0.125);
+          // cloudDensity = mix(cloudDensity, saturate(worleyFbm8 - (1.0 - dimensionalProfile)), 0.25);
+          // cloudDensity = mix(cloudDensity, saturate(worleyFbm4 - (1.0 - dimensionalProfile)), 0.5);
+
+
+          return cloudDensity;
         }
 
         ${rayMarch}
@@ -91,12 +176,22 @@ export class CloudMaterial extends THREE.ShaderMaterial {
           // Box
           vec3 aabbMin = uBoxMin;
           vec3 aabbMax = uBoxMax;
+
+          vec3 center = vec3(0.0);
+          float outerRadius = (aabbMax.x - aabbMin.x) / 2.0;
+          float innerRadius = outerRadius * 0.9;
+
           vec2 nearFar = intersectAABB(ray, aabbMin, aabbMax);
+          // vec2 nearFar = intersectAtmosphere(ray, center, innerRadius, outerRadius);
+          
+          // ray.origin += ray.dir * nearFar.y;
+          // vec3 normalizedPos = (ray.origin - aabbMin) / (aabbMax - aabbMin);
 
           // March
           vec4 color = rayMarch(ray.origin, ray.dir, nearFar.x, nearFar.y, aabbMin, aabbMax);
 
-          gl_FragColor = vec4(vec3(color.rgb), 1.0);
+
+          gl_FragColor = vec4(vec3(color.rgb), color.a);
         }
       `,
       uniforms: {
@@ -105,6 +200,7 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         uTextureA: { value: renderer.textureA3D.texture },
         uTextureB: { value: renderer.textureB3D.texture },
         uTextureC: { value: renderer.textureC2D.texture },
+        uTextureEnvelope: { value: renderer.textureEnvelope.texture },
 
         uMatrixWorldInv: { value: new THREE.Matrix4() },
         uCameraNearFar: { value: new THREE.Vector2() },

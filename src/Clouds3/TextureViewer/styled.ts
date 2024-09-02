@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 export const TextureViewerContainer = styled.div`
-  position: absolute;
+  /* position: absolute;
   top: 0;
   right: 0;
-  z-index: 100000;
+  z-index: 100000; */
 
   width: 300px;
   height: 100%;
@@ -59,6 +59,21 @@ export const NameContainer = styled.div`
 
   padding: 8px;
   box-sizing: border-box;
+`;
+
+export const LabelContainer = styled.div`
+  background-color: black;
+  color: white;
+
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+
+  padding: 8px;
+  box-sizing: border-box;
+
+  font-size: 12px;
 `;
 
 export const ChannelSelector = styled.div`

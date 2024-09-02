@@ -48,14 +48,17 @@ vec3 marchDirectionalLight(vec3 samplePos, vec3 lightDirection, float cosTheta) 
   float lightDepth = 0.0;
   float lightDensity = 0.0;
 
+
+
   for (int j = 0; j < N_LIGHT_STEPS; j++) {
     lightDepth += LIGHT_STEP_SIZE;
     vec3 lightSamplePos = samplePos - lightDirection * lightDepth;
 
-    float lightDistance = getSceneDist(lightSamplePos);
-    if(lightDistance < 0.0) {
-      lightDensity += -lightDistance * densityScale;
-    }
+    float _lightDensity = getCloudDensity(lightSamplePos);
+    _lightDensity = clamp(_lightDensity, 0.0, 1.0);
+    lightDensity += _lightDensity * densityScale;
+
+    if(lightDensity >= 1.0) break;
   }
 
   float luminance = multipleScattering(lightDensity, anisotropicFactor, cosTheta, phaseMix);
@@ -77,23 +80,43 @@ vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMa
   float cosTheta = dot(rd, lightDirection);
 
   float stepSize = (far - near) / float(MAX_STEPS);
+  int steps = MAX_STEPS;
 
   vec3 samplePoint = ro + rd * near;
   samplePoint = (samplePoint - aabbMin) / (aabbMax - aabbMin);
 
-  for (int i = 0; i < MAX_STEPS; i++) {
-    if(depth > far) break;
+  bool hasHit = false;
+  float adaptiveStepSize = stepSize;
+  
+  for (int i = 0; i < steps; i++) {
+    // if(depth > far) break;
 
-    samplePoint += rd * stepSize;
+    samplePoint += rd * adaptiveStepSize;
+    // samplePoint = mod(samplePoint, 1.0);
 
     if(samplePoint.x < 0.0 || samplePoint.x > 1.0 || samplePoint.y < 0.0 || samplePoint.y > 1.0 || samplePoint.z < 0.0 || samplePoint.z > 1.0) {
       break;
     }
 
-    float signedDistance = getSceneDist(samplePoint);
+    float _density;
+    if(hasHit) {
+      _density = getCloudDensity(samplePoint);
+    } else {
+      _density = getCloudDensity(samplePoint);
+    }
 
-    if(signedDistance < 0.0) {
-      density += -signedDistance * densityScale;
+    _density = clamp(_density, 0.0, 1.0);
+    density += _density * densityScale;
+
+    if(_density > 0.0) {
+      if(!hasHit) {
+        hasHit = true;
+        depth -= adaptiveStepSize;
+        samplePoint -= rd * adaptiveStepSize;
+        adaptiveStepSize *= 0.5;
+        steps = int(1.0 / adaptiveStepSize);
+        continue;
+      }
 
       vec3 luminance = marchDirectionalLight(samplePoint, lightDirection, cosTheta);
       finalColor += lightColor * luminance * density * transmittance;
@@ -104,11 +127,17 @@ vec4 rayMarch(vec3 ro, vec3 rd, float near, float far, vec3 aabbMin, vec3 aabbMa
       // Ambient light
       vec3 ambientLight = ambientLightColor;
       finalColor += ambientLight * density * transmittance;
-
-      if(density >= 1.0) break;
+    } else {
+      if(hasHit) {
+        hasHit = false;
+        adaptiveStepSize = stepSize;
+        steps = MAX_STEPS;
+      }
     }
 
-    depth += stepSize;
+    if(density >= 1.0) break;
+
+    depth += adaptiveStepSize;
   }
 
   // finalColor.rgb = vec3(density);

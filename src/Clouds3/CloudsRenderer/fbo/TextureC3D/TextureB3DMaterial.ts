@@ -35,7 +35,8 @@ export class TextureC2DMaterial extends THREE.ShaderMaterial {
         }
       `,
       uniforms: {
-        uSeed: { value: Math.random() * 1000 },
+        // uSeed: { value: Math.random() * 1000 },
+        uSeed: { value: 1 },
       },
     });
   }

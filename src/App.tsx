@@ -34,7 +34,7 @@ export default function App() {
         {/* <Sky /> */}
 
         {/* <PerfHeadless /> */}
-        <Perf />
+        <Perf position="top-left" />
       </Canvas>
       {/* <Ui /> */}
     </>

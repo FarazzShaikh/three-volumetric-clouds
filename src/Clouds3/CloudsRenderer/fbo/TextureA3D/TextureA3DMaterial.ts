@@ -29,10 +29,13 @@ export class TextureA3DMaterial extends THREE.ShaderMaterial {
         ${worley}
 
         void main() {
+          float scale = 1.0;
+
           vec3 pos = vec3(vUv, uZCoord);
           pos += hash33(vec3(uSeed)) * 100.0;
+          pos *= scale;
 
-          float baseFreq = 4.0;
+          float baseFreq = 4.0 * scale;
 
           float worleyFbmA = worleyFbm(pos, baseFreq);
           float worleyFbmB = worleyFbm(pos, baseFreq * 2.0);
@@ -46,7 +49,8 @@ export class TextureA3DMaterial extends THREE.ShaderMaterial {
       `,
       uniforms: {
         uZCoord: { value: 0 },
-        uSeed: { value: Math.random() * 1000 },
+        // uSeed: { value: Math.random() * 1000 },
+        uSeed: { value: 1 },
       },
     });
   }

@@ -41,7 +41,7 @@ export class RenderMaterial extends THREE.ShaderMaterial {
           vec4 sceneColor = texture2D(uSceneTexture, uv);
           vec4 cloudColor = texture2D(uCloudTexture, uv);
 
-          if(sceneColor.a == 0.0) {
+          if(sceneColor.a <= 0.0) {
             discard;
             return;
           } else {

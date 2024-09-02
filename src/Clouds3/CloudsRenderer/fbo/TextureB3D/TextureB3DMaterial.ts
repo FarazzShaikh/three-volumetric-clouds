@@ -41,7 +41,8 @@ export class TextureB3DMaterial extends THREE.ShaderMaterial {
       `,
       uniforms: {
         uZCoord: { value: 0 },
-        uSeed: { value: Math.random() * 1000 },
+        // uSeed: { value: Math.random() * 1000 },
+        uSeed: { value: 1 },
       },
     });
   }

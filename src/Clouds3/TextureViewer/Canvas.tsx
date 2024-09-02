@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { CanvasContainer, ChannelSelector, NameContainer } from "./styled";
+import {
+  CanvasContainer,
+  ChannelSelector,
+  LabelContainer,
+  NameContainer,
+} from "./styled";
 
 const is3DRenderTarget = (
   fbo: THREE.WebGLRenderTarget | THREE.WebGL3DRenderTarget
@@ -18,7 +23,12 @@ export function Canvas({
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const [value, setValue] = useState(0);
-  const [channels, setChannels] = useState([true, false, false, false]);
+  const [channels, setChannels] = useState(
+    [true, false, false, false].map((_, i) =>
+      // @ts-ignore
+      fbo.default !== undefined ? i === fbo.default : _
+    )
+  );
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const letters = ["R", "G", "B", "A"];
@@ -96,6 +106,13 @@ export function Canvas({
       <canvas ref={canvasRef} />
       {/* @ts-ignore */}
       <NameContainer>{fbo.name}</NameContainer>
+      {/* @ts-ignore */}
+      {fbo.labels?.[channels.findIndex((c) => c)] && (
+        <LabelContainer>
+          {/* @ts-ignore */}
+          {fbo.labels[channels.findIndex((c) => c)]}
+        </LabelContainer>
+      )}
       {is3DRenderTarget(fbo) && (
         <span>
           <label>Layer: {value + 1}</label>

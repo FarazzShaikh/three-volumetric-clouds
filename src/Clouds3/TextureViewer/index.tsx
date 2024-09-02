@@ -14,22 +14,27 @@ export function useTextureViewer(
   useEffect(() => {
     if (!events.connected) return;
 
-    const parentElement = events.connected.parentElement!;
+    const parentElement = events.connected;
     const container = document.createElement("div");
-    parentElement.appendChild(container);
+    parentElement.parentElement.appendChild(container);
 
     const root = createRoot(container);
     root.render(
-      <TextureViewerContainer style={{ visibility: "hidden" }}>
+      <TextureViewerContainer>
         {fbos.map((fbo, index) => (
           <Canvas key={index} fbo={fbo} gl={gl} />
         ))}
       </TextureViewerContainer>
     );
 
+    parentElement.parentElement.style.display = "flex";
+
+    parentElement.style.flex = "1";
+    parentElement.style.width = "50%";
+
     return () => {
       root.unmount();
-      parentElement.removeChild(container);
+      container.remove();
     };
   }, [events.connected]);
 }
