@@ -16,6 +16,8 @@ export class CloudMaterial extends THREE.ShaderMaterial {
 
     uBoxMin: { value: THREE.Vector3 };
     uBoxMax: { value: THREE.Vector3 };
+
+    uTime: { value: number };
   };
 
   constructor(renderer: CloudsRenderer) {
@@ -23,10 +25,12 @@ export class CloudMaterial extends THREE.ShaderMaterial {
       vertexShader: /* glsl */ `
         varying vec2 vUv;
         varying vec3 vCameraPosition;
+        varying vec3 vPosition;
 
 
         void main() {
           vUv = uv;
+          vPosition = position;
 
           vCameraPosition = cameraPosition;
 
@@ -44,6 +48,7 @@ export class CloudMaterial extends THREE.ShaderMaterial {
 
         varying vec2 vUv;
         varying vec3 vCameraPosition;
+        varying vec3 vPosition;
         
         uniform sampler2D uSceneTexture;
         uniform sampler2D uSceneDepthTexture;
@@ -62,6 +67,8 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         uniform mat4 uMatrixWorldInv;
         uniform vec3 uBoxMin;
         uniform vec3 uBoxMax;
+
+        uniform float uTime;
 
         float saturate(float value) {
           return clamp(value, 0.0, 1.0);
@@ -126,6 +133,7 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         float getCloudDensity(vec3 p) {
           float scale = 2.0;
           vec3 coord = p * scale;
+          coord.x += uTime * 0.1;
           coord = mod(coord, 1.0);
 
           vec4 textureA = texture(uTextureA, coord);
@@ -155,6 +163,8 @@ export class CloudMaterial extends THREE.ShaderMaterial {
         }
 
         ${rayMarch}
+
+        #include <alphahash_pars_fragment>
 
         void main() {
           vec2 uv = vUv;
@@ -190,8 +200,10 @@ export class CloudMaterial extends THREE.ShaderMaterial {
           // March
           vec4 color = rayMarch(ray.origin, ray.dir, nearFar.x, nearFar.y, aabbMin, aabbMax);
 
+          gl_FragColor = color;
 
-          gl_FragColor = vec4(vec3(color.rgb), color.a);
+          // hash alpha
+          
         }
       `,
       uniforms: {
@@ -210,13 +222,18 @@ export class CloudMaterial extends THREE.ShaderMaterial {
 
         uBoxMin: { value: new THREE.Vector3() },
         uBoxMax: { value: new THREE.Vector3() },
+
+        uTime: { value: 0 },
       },
       transparent: true,
+      alphaHash: true,
+      blending: THREE.AdditiveBlending,
     });
   }
 
   _box: THREE.Box3 | null = null;
-  update(target: THREE.Mesh, camera: THREE.Camera) {
+  update(dt: number, target: THREE.Mesh, camera: THREE.Camera) {
+    this.uniforms.uTime.value += dt;
     this.uniforms.uMatrixWorldInv.value.copy(target.matrixWorld).invert();
 
     const c = camera as THREE.PerspectiveCamera;

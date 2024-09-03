@@ -107,7 +107,12 @@ export class CloudsRenderer {
     // this.textureScene.setSize(size.width, size.height);
   }
 
-  render(target: THREE.Mesh, camera: THREE.Camera, scene: THREE.Scene) {
+  render(
+    dt: number,
+    target: THREE.Mesh,
+    camera: THREE.Camera,
+    scene: THREE.Scene
+  ) {
     this._gl.setRenderTarget(this.textureScene);
     this._gl.render(target, camera);
     this._gl.setRenderTarget(null);
@@ -120,7 +125,7 @@ export class CloudsRenderer {
     const prevAutoClear = this._gl.autoClear;
     this._gl.autoClear = false;
 
-    this.cloudMaterial.update(target, camera);
+    this.cloudMaterial.update(dt, target, camera);
     this.fsQuad.material = this.cloudMaterial;
     this._gl.setRenderTarget(this.textureCloud);
     this._gl.clear();

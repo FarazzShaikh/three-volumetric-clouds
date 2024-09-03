@@ -1,19 +1,37 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo } from "react";
-import { CloudRenderer } from "./CloudRenderer";
+import { useEffect, useMemo, useRef } from "react";
+import { BackSide, Mesh } from "three";
+import { CloudsRenderer } from "./CloudsRenderer";
+import { useTextureViewer } from "./TextureViewer";
 
 export function Clouds() {
-  const size = useThree((state) => state.size);
+  const targetRef = useRef<Mesh>(null!);
   const gl = useThree((state) => state.gl);
-  const renderer = useMemo(() => new CloudRenderer(gl, size), [gl, size]);
+  const size = useThree((state) => state.size);
+  const renderer = useMemo(() => new CloudsRenderer(gl, size), []);
+
+  useTextureViewer(renderer.textures);
 
   useEffect(() => {
-    renderer.init();
-  }, [renderer]);
+    renderer.resize(size);
+  }, [size]);
 
-  useFrame((state) => {
-    renderer.render(state.scene, state.camera);
+  useFrame(({ camera, gl, scene }, dt) => {
+    renderer.render(dt, targetRef.current, camera, scene);
   }, 1);
 
-  return null!;
+  const boxSize = 1;
+
+  return (
+    <group>
+      <mesh ref={targetRef}>
+        <boxGeometry args={[boxSize, boxSize, boxSize]} />
+        <meshBasicMaterial side={BackSide} />
+      </mesh>
+      {/* <mesh>
+        <boxGeometry args={[boxSize, boxSize, boxSize]} />
+        <meshBasicMaterial color="red" wireframe />
+      </mesh> */}
+    </group>
+  );
 }
