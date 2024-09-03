@@ -12,4 +12,6 @@ Current implementation is based on the "Envelope Model" described in the present
 
 THIS IS NOT A FULL IMPLEMENTATION and not intended for production use. It is a work in progress and may be abandoned at any time. It is as far as I got in a couple weeks of work. I may or may not continue working on it in the future.
 
-![video](https://github.com/FarazzShaikh/three-volumetric-clouds/raw/main/public/2024-09-03%2020-44-09.mp4)
+https://github.com/user-attachments/assets/c567a65e-6b81-45ec-9d14-83ef2bb3f8fe
+
+
