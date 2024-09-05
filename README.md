@@ -1,5 +1,7 @@
 # ThreeJS Volumetric Clouds
 
+I know this code is bad, it was not meant to be release but i did anyway. 
+
 Experimental volumetric clouds in ThreeJS following "[Nubis, Evolved](https://www.guerrilla-games.com/read/nubis-evolved)" and associated work by Guerrilla Games.
 
 Current implementation is based on the "Envelope Model" described in the presentation. It implements the following:
